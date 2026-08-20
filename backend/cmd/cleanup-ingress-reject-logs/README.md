@@ -1,20 +1,12 @@
-# Ingress rejection log cleanup
+# Ingress 拒绝日志清理
 
-This maintenance command removes historical admission rejections from
-`ops_error_logs` without matching unrelated authentication or upstream errors.
-It is a dry run unless `--execute` is supplied, and always requires an explicit
-RFC3339 cutoff.
+此维护命令从 `ops_error_logs` 中删除历史准入拒绝记录，不会匹配无关的身份验证错误或上游错误。除非指定 `--execute`，否则只会试运行；并且始终要求提供明确的 RFC3339 截止时间。
 
 ```sh
 go run ./cmd/cleanup-ingress-reject-logs --before 2026-07-17T00:00:00Z
 go run ./cmd/cleanup-ingress-reject-logs --before 2026-07-17T00:00:00Z --execute
 ```
 
-Run the execute form only after every application instance has been upgraded so
-older instances cannot add new ingress rejection rows below the chosen cutoff.
-The classifier intentionally retains invariant failures such as
-`USER_NOT_FOUND`, database errors, quota/billing errors, and upstream failures.
+仅在所有应用实例完成升级后才可执行带 `--execute` 的命令，以避免旧实例在所选截止时间之前新增 Ingress 拒绝记录。分类器会保留 `USER_NOT_FOUND`、数据库错误、配额/计费错误和上游失败等不变量错误。
 
-After the rollout and cleanup are verified, run
-`backend/scripts/finalize-ingress-reject-cleanup.sql` in a maintenance window to
-remove the deprecated plaintext-key audit table and attribution columns.
+确认发布和清理结果后，请在维护窗口执行 `backend/scripts/finalize-ingress-reject-cleanup.sql`，以删除已废弃的明文密钥审计表和归因字段。

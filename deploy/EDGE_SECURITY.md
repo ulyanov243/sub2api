@@ -1,72 +1,30 @@
-# Edge and HTTP Ingress Security
+# 边缘与 HTTP Ingress 安全
 
-Sub2API supports long-lived SSE and WebSocket requests. Protect the request
-ingress without imposing a response `WriteTimeout`: a write deadline would
-terminate healthy long generations and streams.
+Sub2API 支持长连接 SSE 和 WebSocket 请求。请保护请求 Ingress，但不要设置响应 `WriteTimeout`：写入截止时间会中断正常的长生成和流式响应。
 
-## Application defaults
+## 应用默认值
 
-- `server.max_header_bytes: 65536` limits HTTP/1 request headers to 64 KiB;
-  Go maps it to the corresponding HTTP/2 header-list limit.
-- `server.read_header_timeout: 10` bounds slow-header attacks. It does not
-  limit request processing or response streaming.
-- `server.max_request_body_size: 268435456` is the absolute 256 MiB safety net.
-- `gateway.max_body_size: 268435456` remains available to multimodal, Gemini,
-  image, video, and batch-image endpoints.
-- `gateway.text_max_body_size: 33554432` limits the known pure-text
-  `/embeddings` and `/alpha/search` endpoints to 32 MiB.
-- H2C defaults to 50 concurrent streams per connection, a 2 MiB connection
-  upload window, and a 512 KiB stream upload window.
-- Invalid credential abuse is limited in process by trusted client IP (IPv6
-  `/64`): 120 failures per 60 seconds followed by a 60-second block. This is a
-  per-instance safety net; multi-instance enforcement still belongs at the
-  load balancer, CDN, or WAF.
+- `server.max_header_bytes: 65536` 将 HTTP/1 请求头限制为 64 KiB；Go 会将其映射为对应的 HTTP/2 header-list 限制。
+- `server.read_header_timeout: 10` 限制慢请求头攻击；它不限制请求处理或响应流式传输。
+- `server.max_request_body_size: 268435456` 是绝对的 256 MiB 安全网。
+- `gateway.max_body_size: 268435456` 仍可用于多模态、Gemini、图像、视频和批量图像端点。
+- `gateway.text_max_body_size: 33554432` 将已知的纯文本 `/embeddings` 和 `/alpha/search` 端点限制为 32 MiB。
+- H2C 默认每个连接 50 个并发流、2 MiB 连接上传窗口以及 512 KiB 流上传窗口。
+- 无效凭据滥用按受信任客户端 IP（IPv6 `/64`）在进程内限流：60 秒内失败 120 次后封禁 60 秒。这是单实例安全网；多实例限流仍应由负载均衡器、CDN 或 WAF 完成。
 
-Do not add a single application-wide request semaphore: an SSE request may
-legitimately occupy it for many minutes. Apply connection and unauthenticated
-request controls at the edge; authenticated user/API-key concurrency remains
-the application's responsibility.
+不要添加全应用统一的请求 semaphore：一个 SSE 请求可以合理地占用它数分钟。请在边缘层施加连接和未认证请求控制；已认证用户/API Key 的并发量仍由应用负责。
 
-## Trusted client IPs
+## 受信任的客户端 IP
 
-`security.trust_forwarded_ip_for_api_key_acl` is enabled by default for upgrade
-compatibility. While enabled, raw forwarding headers take over client-IP
-resolution for logs and security-sensitive paths. Custom headers from
-`security.forwarded_client_ip_headers` are checked in configured order before
-the built-in `CF-Connecting-IP`, `X-Real-IP`, and `X-Forwarded-For` fallback.
-Header names are case-insensitive, normalized when loaded, de-duplicated, and
-limited to 16 unique valid HTTP field names. Header values must contain IP
-literals; comma-separated values are supported, invalid entries are skipped,
-and public addresses are preferred over private fallback addresses.
+为升级兼容性，`security.trust_forwarded_ip_for_api_key_acl` 默认开启。启用期间，原始转发请求头会接管日志和安全敏感路径的客户端 IP 解析。`security.forwarded_client_ip_headers` 中的自定义请求头按配置顺序检查，优先于内置的 `CF-Connecting-IP`、`X-Real-IP` 和 `X-Forwarded-For` 回退项。请求头名称不区分大小写，在加载时规范化、去重，并限制为 16 个唯一且有效的 HTTP 字段名。请求头值必须包含 IP 字面量；支持逗号分隔值，会跳过无效项，并优先使用公网地址而非私网回退地址。
 
-The list can be supplied in YAML or with the comma-separated environment
-variable `SECURITY_FORWARDED_CLIENT_IP_HEADERS`; an explicitly empty environment
-value clears YAML values. It is also editable from the admin security settings
-and updates at runtime without a restart. A request snapshots the switch and
-header list together, so one request cannot mix old and new settings. Custom
-headers are ignored completely when the switch is disabled. In that mode Gin's
-`server.trusted_proxies` chain is authoritative: configure only the exact
-CIDR/IP addresses that connect directly to Sub2API. An explicit empty list
-trusts no forwarded client IPs.
+该列表可通过 YAML 或逗号分隔的环境变量 `SECURITY_FORWARDED_CLIENT_IP_HEADERS` 提供；明确设置为空的环境变量值会清除 YAML 值。也可在管理端安全设置中编辑，并会在无需重启的情况下更新运行时设置。一个请求会同时快照开关和请求头列表，因此不会混用新旧设置。关闭开关时会完全忽略自定义请求头。此时 Gin 的 `server.trusted_proxies` 链具有权威性：只配置直接连接到 Sub2API 的精确 CIDR/IP 地址。明确的空列表表示不信任任何转发客户端 IP。
 
-On the first upgrade to this mode, a legacy `false` value is changed to `true`
-only when `server.trusted_proxies` was not explicitly configured; explicit
-proxy policies remain in secure mode. New installations persist the configured
-custom header list during database initialization. Existing installations
-backfill a missing database value from the YAML configuration. A hidden
-migration marker prevents later administrator changes from being overwritten.
-If settings cannot be read or the persisted custom-header list is malformed,
-the process fails closed to trusted-proxy mode with no custom headers. If a
-migration write fails, the computed mode remains active for the current process
-and startup records a warning.
+首次升级到此模式时，仅在未明确配置 `server.trusted_proxies` 的情况下，才将旧版 `false` 值改为 `true`；明确的代理策略会保持安全模式。新安装会在数据库初始化时持久化配置的自定义请求头列表。现有安装会从 YAML 配置回填缺失的数据库值。隐藏的迁移标记可防止之后的管理员改动被覆盖。若无法读取设置或持久化的自定义请求头列表格式错误，进程将故障关闭为不带自定义请求头的受信任代理模式。若迁移写入失败，计算出的模式仍会在当前进程中生效，且启动时记录警告。
 
-Compatibility takeover accepts forwarded headers without validating the direct
-peer, including any configured custom header. Protect the origin from direct
-access while it is enabled. A CDN deployment must firewall the origin so only
-the CDN or load balancer can reach it, and that proxy must overwrite every
-trusted client-IP header rather than append an untrusted client value.
+兼容性接管会接受转发请求头而不验证直接对端，包括任何配置的自定义请求头。启用时请保护源站免受直接访问。CDN 部署必须通过防火墙限制源站，使其仅能由 CDN 或负载均衡器访问；该代理必须覆盖每个受信任客户端 IP 请求头，而不是附加不受信任的客户端值。
 
-Example for a proxy on the same host:
+同主机代理示例：
 
 ```yaml
 server:
@@ -75,11 +33,9 @@ server:
     - ::1/128
 ```
 
-## Nginx baseline
+## Nginx 基线配置
 
-Define shared zones in the `http` block. Tune rates to measured legitimate
-traffic; the values below are conservative starting points, not universal
-capacity targets.
+在 `http` 块中定义共享 zone。应根据测得的合法流量调整速率；以下值是保守的起点，而非通用容量目标。
 
 ```nginx
 limit_conn_zone $binary_remote_addr zone=sub2api_conn:20m;
@@ -128,46 +84,24 @@ server {
 }
 ```
 
-If Nginx gzip is enabled in the `http` block, keep `text/event-stream` out of
-`gzip_types` and do not use `gzip_types *` for Sub2API. The
-`proxy_buffering off` setting above prevents proxy buffering, but it does not
-disable the gzip response filter. Use an explicit list for ordinary responses:
+若在 `http` 块中启用了 Nginx gzip，请将 `text/event-stream` 排除在 `gzip_types` 外，并且不要为 Sub2API 使用 `gzip_types *`。上面的 `proxy_buffering off` 会禁止代理缓冲，但不会关闭 gzip 响应过滤器。请为普通响应使用显式列表：
 
 ```nginx
 gzip on;
 gzip_types text/plain text/css application/json application/javascript application/xml image/svg+xml;
 ```
 
-If a shared global configuration cannot exclude SSE by content type, set
-`gzip off;` in the locations serving streaming API routes. This leaves gzip
-available for the web UI and static assets.
+如果共享的全局配置无法按内容类型排除 SSE，请在服务流式 API 路由的 location 中设置 `gzip off;`。这样 Web UI 和静态资源仍可使用 gzip。
 
-Do not use an incoming `$http_x_forwarded_for` value unless Nginx real-IP
-processing is restricted to explicit trusted proxy CIDRs.
+除非 Nginx real-IP 处理已限制为明确的受信任代理 CIDR，否则不要使用传入的 `$http_x_forwarded_for` 值。
 
-## Caddy and CDN
+## Caddy 与 CDN
 
-The bundled `deploy/Caddyfile` sets a 64 KiB header limit, a 10-second header
-timeout, a 256 MiB absolute body limit, and overwrites forwarded addresses from
-the TCP peer. It is therefore a direct-to-Caddy baseline. Do not use its
-`{remote_host}` forwarding lines unchanged behind a CDN: all clients would be
-attributed to a CDN egress address, collapsing rejection aggregation and the
-invalid-auth limiter onto unrelated users.
+随附的 `deploy/Caddyfile` 设置了 64 KiB 请求头限制、10 秒请求头超时、256 MiB 绝对请求体限制，并会使用 TCP 对端覆盖转发地址。因此它是直连 Caddy 的基线配置。不要在 CDN 后原样使用其 `{remote_host}` 转发行：所有客户端都会被归因为 CDN 出口地址，使拒绝聚合和无效认证限流合并到无关用户。
 
-The bundled Caddy configuration leaves `flush_interval` unset so Caddy can
-automatically flush `text/event-stream` responses while still propagating
-client cancellation upstream. Do not set it globally: positive values can add
-streaming latency, while Caddy 2.6.2's special `-1` mode also causes
-reverse-proxied requests to continue after clients disconnect. The
-configuration uses an explicit response content-type list for compression. Do
-not replace that list with `text/*` or the shorthand `encode gzip zstd`: both
-match `text/event-stream` and can buffer SSE until the response ends. Keep
-streaming responses uncompressed while retaining compression for the web UI,
-JSON, and static assets.
+随附的 Caddy 配置未设置 `flush_interval`，以便 Caddy 自动 flush `text/event-stream` 响应，同时仍将客户端取消传递给上游。不要全局设置它：正值会增加流式延迟，而 Caddy 2.6.2 的特殊 `-1` 模式还会导致客户端断开后反向代理请求继续运行。该配置为压缩使用显式响应内容类型列表。不要将其替换为 `text/*` 或简写 `encode gzip zstd`：二者都会匹配 `text/event-stream`，并可能将 SSE 缓冲到响应结束。应保持流式响应未压缩，同时保留 Web UI、JSON 和静态资源的压缩。
 
-For a CDN deployment, first firewall the origin so only current CDN egress
-CIDRs can connect. Then configure those exact ranges as Caddy trusted proxies
-and derive upstream headers from Caddy's parsed `{client_ip}`. For example:
+CDN 部署时，首先通过防火墙限制源站，使其仅允许当前 CDN 出口 CIDR 连接。然后将这些精确范围配置为 Caddy 受信任代理，并从 Caddy 解析出的 `{client_ip}` 派生上游请求头。例如：
 
 ```caddyfile
 {
@@ -186,24 +120,12 @@ api.example.com {
 }
 ```
 
-Replace the documentation ranges with the CDN's published, automatically
-maintained egress ranges. `CF-Connecting-IP` is safe here only because direct
-origin access is blocked and Caddy trusts only those TCP peers. Configure
-Sub2API `server.trusted_proxies` with the Caddy address/private subnet so the
-application accepts only Caddy's rewritten headers.
+请将文档中的范围替换为 CDN 公开的、自动维护的出口范围。仅因直接源站访问被阻止且 Caddy 仅信任这些 TCP 对端，`CF-Connecting-IP` 在此才是安全的。请将 Sub2API `server.trusted_proxies` 配置为 Caddy 地址/私有子网，以使应用仅接受 Caddy 重写的请求头。
 
-Caddy core does not provide a general request-rate limiter; use a trusted
-CDN/WAF, a supported rate-limit module, or host firewall controls.
+Caddy core 不提供通用请求限流器；请使用受信任的 CDN/WAF、受支持的限流模块或主机防火墙控制。
 
-At a CDN/WAF, configure connection limits, header/body limits, bot challenges,
-and per-IP/ASN rates before traffic reaches the origin. Allow origin ingress
-only from CDN egress CIDRs or a private load balancer. Keep the application port
-off the public Internet.
+在 CDN/WAF 上，应在流量到达源站前配置连接限制、请求头/请求体限制、Bot 挑战和按 IP/ASN 的速率限制。仅允许 CDN 出口 CIDR 或私有负载均衡器访问源站 Ingress。请勿将应用端口暴露在公共互联网。
 
-## DDoS boundary
+## DDoS 边界
 
-Application checks reduce amplification after a connection reaches Go. They
-cannot absorb volumetric attacks, TLS floods, bandwidth saturation, or a large
-distributed source set. Those require upstream network capacity, CDN/WAF
-filtering, provider firewall rules, and origin isolation. Avoid high-cardinality
-metrics or per-request database security logs during rejection storms.
+应用检查可在连接到达 Go 后降低放大效应，但无法吸收大流量攻击、TLS 洪泛、带宽饱和或大量分布式来源。这些威胁需要上游网络容量、CDN/WAF 过滤、云服务商防火墙规则和源站隔离。在拒绝风暴期间，应避免高基数指标或按请求写入的数据库安全日志。

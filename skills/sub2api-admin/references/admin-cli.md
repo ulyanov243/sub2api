@@ -1,6 +1,6 @@
-# Sub2API Admin Reference
+# Sub2API Admin 参考
 
-## Environment
+## 环境
 
 ```bash
 export SUB2API_BASE_URL='https://your-sub2api-host'
@@ -25,7 +25,7 @@ curl -sS "$SUB2API_BASE_URL/api/v1/auth/login" \
 node scripts/sub2api-admin.js <command>
 ```
 
-## Accounts
+## 账户
 
 ### 只读
 
@@ -120,14 +120,14 @@ node scripts/sub2api-admin.js accounts import-json \
 - `group_ids`
 - `credentials.model_mapping`
 
-## Groups And Proxies
+## 分组与代理
 
 ```bash
 node scripts/sub2api-admin.js groups all
 node scripts/sub2api-admin.js proxies all
 ```
 
-## Redeem Codes
+## 兑换码
 
 兑换码类型包括 `balance`、`concurrency`、`subscription`、`invitation`。状态常用 `unused`、`used`、`expired`。
 
@@ -178,7 +178,7 @@ node scripts/sub2api-admin.js redeem-codes delete 123
 node scripts/sub2api-admin.js redeem-codes batch-delete --ids 123,124
 ```
 
-## Error Rules And TLS Profiles
+## 错误规则与 TLS Profile
 
 对应账号页顶部“错误透传规则”和“TLS 指纹模板”。
 
@@ -197,7 +197,7 @@ node scripts/sub2api-admin.js tls-profiles update 1 --file profile.json
 node scripts/sub2api-admin.js tls-profiles delete 1
 ```
 
-## Raw Admin API
+## 原始 Admin API
 
 未封装或新版本后台接口可用 `api` 直通。路径可写 `/admin/...` 或 `/api/v1/admin/...`。
 
@@ -207,7 +207,7 @@ node scripts/sub2api-admin.js api POST /admin/accounts/bulk-update \
   --json '{"account_ids":[40],"concurrency":10}'
 ```
 
-## Confirmed Admin Endpoints
+## 已确认的 Admin 端点
 
 - `GET /api/v1/admin/accounts`
 - `GET /api/v1/admin/accounts/:id`
@@ -265,7 +265,7 @@ node scripts/sub2api-admin.js api POST /admin/accounts/bulk-update \
 - `PUT /api/v1/admin/tls-fingerprint-profiles/:id`
 - `DELETE /api/v1/admin/tls-fingerprint-profiles/:id`
 
-## Notes
+## 注意事项
 
 - 线上写入前先只读核对目标集合。
 - 导出结果包含敏感凭据，优先使用 `--file`。

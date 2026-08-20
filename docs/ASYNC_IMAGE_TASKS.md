@@ -1,10 +1,10 @@
-# Asynchronous Image Tasks
+# 异步图像任务
 
-Asynchronous image tasks let clients submit long-running OpenAI-compatible image requests without keeping one HTTP connection open. This avoids proxy/CDN response timeouts such as Cloudflare 524 while preserving the existing image routing, billing, moderation, concurrency, and failover behavior.
+异步图像任务允许客户端提交长时间运行的 OpenAI 兼容图像请求，而无需保持一个 HTTP 连接打开。它可避免 Cloudflare 524 等代理/CDN 响应超时，同时保留既有的图像路由、计费、审核、并发和故障转移行为。
 
-## Endpoints
+## 端点
 
-The authenticated gateway exposes both `/v1` paths and their existing no-prefix aliases:
+已认证网关同时提供 `/v1` 路径及其既有的无前缀别名：
 
 ```text
 POST /v1/images/generations/async
@@ -12,29 +12,29 @@ POST /v1/images/edits/async
 GET  /v1/images/tasks/{task_id}
 ```
 
-The aliases are `/images/generations/async`, `/images/edits/async`, and `/images/tasks/{task_id}`.
+别名为 `/images/generations/async`、`/images/edits/async` 和 `/images/tasks/{task_id}`。
 
-Only OpenAI and Grok groups are supported. Requests use the same JSON or multipart payload as the corresponding synchronous endpoint. Streaming image requests are rejected because a polled task returns one final JSON result.
+仅支持 OpenAI 和 Grok 分组。请求使用与对应同步端点相同的 JSON 或 multipart payload。流式图像请求会被拒绝，因为轮询任务只会返回一个最终 JSON 结果。
 
-## Enabling the feature (object storage)
+## 启用功能（对象存储）
 
-Asynchronous image tasks are **disabled by default** and gated on object storage. When the switch is off — or the S3 credentials are incomplete — the async endpoints return `404` and never create a task or write to Redis. This is deliberate: without offloading, large `b64_json` results (several MB each, e.g. `gpt-image-1`) would accumulate in Redis and exhaust its memory.
+异步图像任务**默认关闭**，并受对象存储配置控制。开关关闭或 S3 凭据不完整时，异步端点返回 `404`，且不会创建任务或向 Redis 写入数据。这是有意的：若不卸载结果，大型 `b64_json` 结果（每项数 MB，例如 `gpt-image-1`）会累积在 Redis 中并耗尽内存。
 
-### From the admin UI (recommended)
+### 通过管理 UI（推荐）
 
-**Admin → Backup → Async image object storage.** Saving the form takes effect immediately — the object-storage client is rebuilt on the next request, so there is no container restart.
+**Admin → Backup → Async image object storage。** 保存表单后立即生效：下一个请求会重建对象存储 client，无需重启容器。
 
-Because the async image storage and the database backup share one S3 client, the form defaults to **reusing the backup S3 configuration**: it borrows the endpoint, region and credentials already configured above and keeps only its own bucket and prefix, so backups stay under `backups/` while images go to `images/`. Leave the bucket empty to use the backup bucket as well. Untick the box to point images at a completely separate account.
+异步图像存储和数据库备份共用一个 S3 client，因此表单默认**复用备份 S3 配置**：它借用上方已配置的 endpoint、region 和凭据，只保留自己的 bucket 和 prefix，这样备份仍存于 `backups/`，图像存于 `images/`。留空 bucket 则同样使用备份 bucket。取消勾选可将图像指向完全独立的账户。
 
-Saving requires step-up 2FA when that gate is enabled, for the same reason the backup S3 form does: changing the target redirects generated content to another account.
+启用该门槛时，保存操作要求 step-up 2FA，原因与备份 S3 表单相同：更改目标会将生成内容重定向到其他账户。
 
-Turning the switch off stops new submissions but keeps already-accepted tasks pollable, so nothing in flight is stranded.
+关闭开关会停止新提交，但已接受的任务仍可轮询，因此不会遗留进行中的任务。
 
-### From the config file
+### 通过配置文件
 
-The admin setting takes precedence. When nothing has ever been saved there, the `image_storage` block in `config.yaml` is used instead, so deployments that enabled the feature before the admin UI existed keep working untouched.
+管理端设置优先。若从未在管理端保存过，系统将改用 `config.yaml` 中的 `image_storage` 块，因此在管理 UI 出现前已启用该功能的部署可继续正常工作。
 
-Configure an S3-compatible object store (AWS S3, Cloudflare R2, Aliyun OSS, MinIO, …) in `config.yaml` (all keys also accept the `IMAGE_STORAGE_*` environment overrides):
+在 `config.yaml` 中配置 S3 兼容对象存储（AWS S3、Cloudflare R2、Aliyun OSS、MinIO 等；所有键都接受 `IMAGE_STORAGE_*` 环境变量覆盖）：
 
 ```yaml
 image_storage:
@@ -51,27 +51,27 @@ image_storage:
   max_download_bytes: 33554432     # cap when re-hosting an upstream image URL (32MB)
 ```
 
-When a task completes, each generated image is uploaded to the bucket and the result is rewritten to a compact form: `data[].url` points at the stored object (a permanent `public_base_url/key` link, or a time-limited presigned URL) and `b64_json` is removed. Only this small JSON is stored in Redis. If an upload fails, the task is marked `failed` rather than persisting the raw base64.
+任务完成后，每个生成的图像会上传到 bucket，结果会重写为紧凑形式：`data[].url` 指向已存储对象（永久的 `public_base_url/key` 链接或有时限的 presigned URL），并移除 `b64_json`。Redis 中只存储这份较小的 JSON。上传失败时，任务会标记为 `failed`，而不会持久化原始 base64。
 
-To support a different vendor beyond the S3-compatible client, implement the `service.ImageStorage` interface (`Save(ctx, key, contentType, data) (url, error)`) and provide it in place of the S3 implementation.
+如需支持 S3 兼容 client 以外的厂商，请实现 `service.ImageStorage` 接口（`Save(ctx, key, contentType, data) (url, error)`），并以该实现替代 S3 实现。
 
-### Troubleshooting: the endpoints return 404 after enabling
+### 故障排除：启用后端点返回 404
 
-`404 async image tasks are not enabled` means `image_storage` did not resolve to a complete configuration, so the feature stayed off. The route exists either way — the 404 comes from the handler, not from an unregistered path, which makes it easy to mistake for a missing build.
+`404 async image tasks are not enabled` 表示 `image_storage` 未解析为完整配置，因此功能保持关闭。无论是否启用路由都会存在；404 来自 handler，而非未注册路径，所以很容易被误判为构建缺失。
 
-Check the startup log for:
+请在启动日志中查找：
 
 ```text
 WARN image_storage.enabled is true but object storage is not fully configured; async image tasks are disabled  missing_keys=[...]
 ```
 
-`missing_keys` names exactly which credentials were empty when the config was loaded.
+`missing_keys` 会准确列出加载配置时为空的凭据。
 
-Note that releases **before v0.1.161 silently dropped `IMAGE_STORAGE_ENDPOINT`, `_BUCKET`, `_ACCESS_KEY_ID`, `_SECRET_ACCESS_KEY` and `_PUBLIC_BASE_URL`** when they were supplied only through the environment: those keys had no registered default, and viper cannot see an environment variable for a key it does not already know about. Deployments driven purely by `environment:` — which is what `deploy/docker-compose.yml` does by default — therefore reported `enabled: true` with empty credentials and 404'd on every async call. On an affected release the workaround is to also place the `image_storage` block in `/app/data/config.yaml` (copy it from `deploy/config.example.yaml`); once the keys exist in the file, the environment overrides apply normally.
+注意，**v0.1.161 之前**的版本在仅通过环境变量提供 `IMAGE_STORAGE_ENDPOINT`、`_BUCKET`、`_ACCESS_KEY_ID`、`_SECRET_ACCESS_KEY` 和 `_PUBLIC_BASE_URL` 时会静默丢弃这些值：这些键没有注册默认值，而 viper 无法读取它原本不知道的键的环境变量。因此，纯粹由 `environment:` 驱动的部署（`deploy/docker-compose.yml` 默认就是如此）会报告 `enabled: true`，但凭据为空，并使每个异步调用返回 404。受影响版本的解决方法是同时在 `/app/data/config.yaml` 中放入 `image_storage` 块（从 `deploy/config.example.yaml` 复制）；一旦这些键存在于文件中，环境变量覆盖就会正常生效。
 
-Two further causes of a 404 that are unrelated to storage: the API key's group must be on the **OpenAI or Grok** platform (any other platform, or a key with no group at all, yields `Images API is not supported for this platform`), and a task may only be polled with the **same API key that submitted it** — polling with a different key of the same user returns `image task not found` by design.
+另外两种与存储无关的 404 原因是：API Key 所在分组必须为 **OpenAI 或 Grok** 平台（其他平台，或没有分组的 Key，都会返回 `Images API is not supported for this platform`）；一个任务只能用**提交它的同一 API Key**轮询——同一用户的另一把 Key 轮询时，按设计会返回 `image task not found`。
 
-## Submit a task
+## 提交任务
 
 ```bash
 curl -i https://api.example.com/v1/images/generations/async \
@@ -84,7 +84,7 @@ curl -i https://api.example.com/v1/images/generations/async \
   }'
 ```
 
-The server stores the initial task in Redis and responds with `202 Accepted`:
+服务端会将初始任务存入 Redis，并返回 `202 Accepted`：
 
 ```json
 {
@@ -98,18 +98,18 @@ The server stores the initial task in Redis and responds with `202 Accepted`:
 }
 ```
 
-`Location` contains the polling path and `Retry-After: 3` provides the recommended polling interval.
+`Location` 包含轮询路径，`Retry-After: 3` 给出建议的轮询间隔。
 
-## Poll a task
+## 轮询任务
 
-Use the same API key that submitted the task:
+请使用提交该任务的同一 API Key：
 
 ```bash
 curl https://api.example.com/v1/images/tasks/imgtask_0123456789abcdef \
   -H 'Authorization: Bearer sk-...'
 ```
 
-While work is in progress:
+任务进行中时：
 
 ```json
 {
@@ -122,7 +122,7 @@ While work is in progress:
 }
 ```
 
-On success, `result` mirrors the synchronous image API body, except each image has been offloaded to object storage: `data[].url` points at the stored object and `b64_json` is stripped (so both URL and base64 upstream formats end up as compact stored links):
+成功时，`result` 与同步图像 API 响应体一致，但每张图像都已卸载到对象存储：`data[].url` 指向已存储对象，且 `b64_json` 被移除（因此无论上游返回 URL 还是 base64，最终都会成为紧凑的存储链接）：
 
 ```json
 {
@@ -142,7 +142,7 @@ On success, `result` mirrors the synchronous image API body, except each image h
 }
 ```
 
-For URL responses, `image_url` mirrors the first `data[].url` for simple clients. On failure, the task reaches `failed` and exposes the original OpenAI-compatible error object where available:
+对于 URL 响应，`image_url` 会镜像第一项 `data[].url`，便于简单 client 使用。失败时，任务进入 `failed` 状态，并在可用时暴露原始 OpenAI 兼容错误对象：
 
 ```json
 {
@@ -161,6 +161,6 @@ For URL responses, `image_url` mirrors the first `data[].url` for simple clients
 }
 ```
 
-All submit and poll responses include `Cache-Control: no-store`, preventing a CDN from caching the `processing` state. Tasks and results expire 24 hours after their latest state update. A task executes for at most 30 minutes.
+所有提交和轮询响应都包含 `Cache-Control: no-store`，以防 CDN 缓存 `processing` 状态。任务和结果在其最后一次状态更新 24 小时后过期。一个任务最长执行 30 分钟。
 
-Task ownership is scoped to both user and API key. Unknown task IDs and IDs owned by another key both return `404`, avoiding task-existence disclosure. Polling remains available when the completed generation used the key's remaining balance; normal authentication, disabled-key, user, IP, and group checks still apply.
+任务所有权同时受用户和 API Key 限定。未知任务 ID 和归属于另一把 Key 的 ID 都返回 `404`，以避免泄露任务是否存在。即使已完成的生成消耗了该 Key 的剩余额度，仍可轮询；常规认证、禁用 Key、用户、IP 和分组检查依然适用。

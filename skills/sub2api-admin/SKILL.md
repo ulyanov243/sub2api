@@ -1,11 +1,11 @@
 ---
 name: sub2api-admin
-description: Manage Sub2API admin APIs for accounts, redeem codes, groups, proxies, error passthrough rules, TLS fingerprint profiles, imports, exports, batch updates, and raw administrator API calls. Use when the user mentions Sub2API, admin API keys, account management, redeem code management, recharge codes, invitation codes, bulk account import/export, keeping or deleting accounts, refreshing accounts, clearing errors, CRS sync, or managing Sub2API backend settings through the admin API.
+description: 管理 Sub2API 的 admin API，包括账户、兑换码、分组、代理、错误透传规则、TLS 指纹 profile、导入、导出、批量更新和原始管理员 API 调用。用户提到 Sub2API、admin API Key、账户管理、兑换码管理、充值码、邀请码、批量账户导入/导出、保留或删除账户、刷新账户、清除错误、CRS 同步，或通过 admin API 管理 Sub2API Backend 设置时使用此 skill。
 ---
 
 # Sub2API Admin
 
-Use the bundled CLI instead of ad hoc `curl`. Run examples from this skill directory.
+请使用随附 CLI，而不是临时编写 `curl`。示例应在此 skill 目录中运行。
 
 ```bash
 export SUB2API_BASE_URL='https://your-sub2api-host'
@@ -15,17 +15,17 @@ export SUB2API_ADMIN_API_KEY='<admin api key>'
 node scripts/sub2api-admin.js accounts list
 ```
 
-For all commands and payload examples, read [references/admin-cli.md](references/admin-cli.md).
+所有命令和 payload 示例请参阅 [references/admin-cli.md](references/admin-cli.md)。
 
-## Workflow
+## 工作流
 
-1. Reuse `SUB2API_BASE_URL` and either `SUB2API_ADMIN_API_KEY` or `SUB2API_JWT` from the environment.
-2. Run read-only commands first: `accounts list`, `accounts get <id>`, `groups all`, or `proxies all`.
-3. Before destructive or bulk writes, print the target account names and IDs.
-4. Execute the write command only after the target set is clear.
-5. Run a follow-up read command to verify the result.
+1. 复用环境中的 `SUB2API_BASE_URL` 以及 `SUB2API_ADMIN_API_KEY` 或 `SUB2API_JWT`。
+2. 先运行只读命令：`accounts list`、`accounts get <id>`、`groups all` 或 `proxies all`。
+3. 在破坏性或批量写入前，打印目标账户名称和 ID。
+4. 仅在目标集合明确后执行写入命令。
+5. 执行后续只读命令验证结果。
 
-## Common Commands
+## 常用命令
 
 ```bash
 node scripts/sub2api-admin.js accounts list --page-size 20
@@ -40,10 +40,10 @@ node scripts/sub2api-admin.js error-rules list
 node scripts/sub2api-admin.js tls-profiles list
 ```
 
-## Safety Notes
+## 安全说明
 
-- Authentication uses `x-api-key` from `SUB2API_ADMIN_API_KEY` first, then falls back to `Authorization: Bearer <jwt>` from `SUB2API_JWT`.
-- If the API returns `INVALID_ADMIN_KEY`, ask the user to regenerate the admin API key. If using JWT, log in as an admin user and copy the `access_token` from `POST /api/v1/auth/login`.
-- `accounts export` includes credentials and tokens. Prefer `--file` and avoid printing exports in chat.
-- Redeem code create/redeem commands should use `--idempotency-key` for payment or recharge workflows.
-- For uncertain or newly added backend APIs, use `api <METHOD> <admin-path>` after a read-only check.
+- 认证优先使用 `SUB2API_ADMIN_API_KEY` 中的 `x-api-key`，其次回退到 `SUB2API_JWT` 中的 `Authorization: Bearer <jwt>`。
+- API 返回 `INVALID_ADMIN_KEY` 时，请让用户重新生成 admin API Key。使用 JWT 时，以管理员用户登录并从 `POST /api/v1/auth/login` 响应中复制 `access_token`。
+- `accounts export` 包含凭据和 token。优先使用 `--file`，避免在聊天中打印导出内容。
+- 兑换码创建/兑换命令应在支付或充值工作流中使用 `--idempotency-key`。
+- 对于不确定或新增加的 Backend API，先做只读检查，再使用 `api <METHOD> <admin-path>`。

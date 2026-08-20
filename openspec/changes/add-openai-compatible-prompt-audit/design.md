@@ -1,4 +1,4 @@
-## Context
+## 背景
 
 ### 当前系统
 
@@ -48,7 +48,7 @@ sub2api 当前已经存在一套完整的内容审核能力：
 - Redis：扫描正文 TTL、配置失效通知、可选跨实例心跳/指标汇总。
 - 控制台：独立提示词审计页面。
 
-## Goals / Non-Goals
+## 目标 / 非目标
 
 **Goals:**
 
@@ -73,7 +73,7 @@ sub2api 当前已经存在一套完整的内容审核能力：
 - 不新增目标项目不存在的 AICodex 专属产品路由；只对目标项目实际存在的文本入口提供等价覆盖。
 - 不在本 change 中重构整个 Handler、计费或账号调度架构。
 
-## Decisions
+## 决策
 
 ### 1. 迁移行为契约，而不是直接复制源目录
 
@@ -677,7 +677,7 @@ prompt_audit.events_filter_deleted
 
 不引入新的 Go 队列库、ORM、前端状态库或 UI 框架。
 
-## Risks / Trade-offs
+## 风险 / 权衡
 
 - [两个同步引擎会增加首字节延迟] → 只有管理员显式开启 blocking 才发生；并行执行、最新输入优先、Block 早停、共享 deadline、连接池和分组灰度。
 - [Guard 故障在 fail-closed 下影响可用性] → 多节点有序故障切换、bulkhead、真实探测、运行态告警和一键关闭 blocking；Unavailable 与 Block 使用不同错误码。
@@ -692,7 +692,7 @@ prompt_audit.events_filter_deleted
 - [事件量过大] → 默认不保存 Pass，分页索引、分批删除；后续根据真实规模单独设计自动保留期。
 - [源参考继续变化] → 实施前冻结源基线，本 change specs 作为目标实现最终权威。
 
-## Migration Plan
+## 迁移计划
 
 ### 阶段 0：冻结和对照
 
@@ -743,7 +743,7 @@ prompt_audit.events_filter_deleted
 - 回滚不删除表、配置或历史事件，不回退已应用 migration。
 - Worker 停止后 queued/retry 任务保留；恢复时继续处理，或由管理员按明确策略清理。
 
-## Resolved Decisions
+## 已确定的决策
 
 1. **源基线标识**：采用 `source-freeze/` 中的只读 tracked patch + untracked archive；base commit、SHA-256 和恢复测试已登记在 `source-baseline.md`。
 2. **事件自动保留期**：第一版只提供管理员安全删除，不增加自动保留清理；真实事件量稳定后另起 change。

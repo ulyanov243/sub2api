@@ -1,28 +1,28 @@
-# Apple container Deployment
+# Apple container 部署
 
-Sub2API can run as a native three-service stack with Apple's `container` CLI. This workflow runs the published Sub2API, PostgreSQL, and Redis OCI images without Docker Desktop or a Docker-compatible daemon.
+Sub2API 可通过 Apple 的 `container` CLI 以原生三服务栈运行。此工作流无需 Docker Desktop 或兼容 Docker 的 daemon，即可运行已发布的 Sub2API、PostgreSQL 和 Redis OCI 镜像。
 
-## Support Level
+## 支持范围
 
-Apple `container` support is intended for local development and operator-managed deployments on a Mac. Docker Compose remains the recommended production deployment path.
+Apple `container` 支持面向本地开发和在 Mac 上由运维人员管理的部署。生产环境仍推荐使用 Docker Compose。
 
-Apple `container` 1.1 does not provide restart policies, automatic startup, workload health scheduling, a Docker API socket, or full Compose orchestration. `apple-container.sh` supplies ordered startup and readiness checks when you invoke it, but it is not a continuously running supervisor.
+Apple `container` 1.1 不提供重启策略、自动启动、工作负载健康调度、Docker API socket 或完整的 Compose 编排。调用 `apple-container.sh` 时，它会提供有序启动和就绪检查；但它不是持续运行的 supervisor。
 
-## Requirements
+## 要求
 
-- A Mac with Apple silicon
-- macOS 26 or newer
-- Apple `container` 1.1.0 or newer
-- `openssl` for generating initial secrets
-- Local Network access for `container-runtime-linux` when macOS prompts during the first published-container startup
+- 搭载 Apple silicon 的 Mac
+- macOS 26 或更高版本
+- Apple `container` 1.1.0 或更高版本
+- 用于生成初始密钥的 `openssl`
+- 首次启动已发布容器时，macOS 提示后为 `container-runtime-linux` 授予 Local Network 访问权限
 
-Install Apple `container` from its [official releases](https://github.com/apple/container/releases), then verify it:
+从其[官方发布页](https://github.com/apple/container/releases)安装 Apple `container`，然后验证：
 
 ```bash
 container --version
 ```
 
-## Quick Start
+## 快速开始
 
 ```bash
 git clone https://github.com/Wei-Shaw/sub2api.git
@@ -41,15 +41,15 @@ nano .env
 ./apple-container.sh status
 ```
 
-Open `http://localhost:8080`. If `ADMIN_PASSWORD` is empty, retrieve the generated password with:
+打开 `http://localhost:8080`。如果 `ADMIN_PASSWORD` 为空，请使用以下命令获取生成的密码：
 
 ```bash
 ./apple-container.sh logs app
 ```
 
-The env file uses literal `KEY=value` syntax. Do not use Compose expressions such as `${VALUE:-default}`, and do not quote values unless the quote characters are part of the intended value. `BIND_HOST` must be an IPv4 address, and `SERVER_PORT` must be between 1025 and 65535.
+环境文件使用字面量 `KEY=value` 语法。请勿使用 `${VALUE:-default}` 这类 Compose 表达式；除非引号本身是值的一部分，否则不要给值加引号。`BIND_HOST` 必须是 IPv4 地址，`SERVER_PORT` 必须在 1025 至 65535 之间。
 
-## Commands
+## 命令
 
 ```bash
 # Start dependencies and recreate the lightweight app container with current IPs.
@@ -83,13 +83,13 @@ The env file uses literal `KEY=value` syntax. Do not use Compose expressions suc
 ./apple-container.sh destroy --volumes --yes
 ```
 
-`destroy --volumes` does not remove `.env`, backup files, or pulled images. Delete credentials and backups separately when decommissioning a deployment. Use `container image delete <image>` only after confirming no other Apple containers use that image.
+`destroy --volumes` 不会删除 `.env`、备份文件或已拉取镜像。下线部署时，请分别删除凭据和备份。仅在确认没有其他 Apple 容器使用镜像后，才可使用 `container image delete <image>`。
 
-After a host reboot or `container system stop`, run `./apple-container.sh up` again. Apple `container` does not automatically restart persisted containers.
+主机重启或执行 `container system stop` 后，请再次运行 `./apple-container.sh up`。Apple `container` 不会自动重启持久化容器。
 
-## Configuration
+## 配置
 
-The script uses `deploy/.env`, the same source file used by Docker Compose. Export `SUB2API_ENV_FILE` to use another file for every command in the current shell:
+脚本使用 `deploy/.env`，这与 Docker Compose 使用的是同一源文件。在当前 shell 中导出 `SUB2API_ENV_FILE`，即可让所有命令使用其他文件：
 
 ```bash
 export SUB2API_ENV_FILE=/absolute/path/to/sub2api.env
@@ -97,7 +97,7 @@ export SUB2API_ENV_FILE=/absolute/path/to/sub2api.env
 ./apple-container.sh up
 ```
 
-Apple-specific image overrides are available:
+可使用 Apple 专用的镜像覆盖：
 
 ```dotenv
 APPLE_CONTAINER_SUB2API_IMAGE=weishaw/sub2api:latest
@@ -105,46 +105,46 @@ APPLE_CONTAINER_POSTGRES_IMAGE=postgres:18-alpine
 APPLE_CONTAINER_REDIS_IMAGE=redis:8-alpine
 ```
 
-The normal `up` command recreates the application container, so application environment changes are applied immediately. Use `up --recreate` when changing PostgreSQL or Redis container images or Redis runtime configuration. Persistent data remains in named volumes.
+常规 `up` 命令会重建应用容器，因此应用环境变更会立即生效。变更 PostgreSQL 或 Redis 容器镜像、或 Redis 运行时配置时，请使用 `up --recreate`。持久数据会保留在命名卷中。
 
-`POSTGRES_USER`, `POSTGRES_PASSWORD`, and `POSTGRES_DB` are applied only when PostgreSQL initializes an empty data volume. Changing them in `.env` and recreating the container does not change an existing database. Rotate a password with `ALTER ROLE`, and plan explicit migrations for user or database changes. To intentionally initialize a new empty database, first back up the old one and use `destroy --volumes`.
+`POSTGRES_USER`、`POSTGRES_PASSWORD` 和 `POSTGRES_DB` 仅在 PostgreSQL 初始化空数据卷时生效。在 `.env` 中修改它们再重建容器，并不会修改现有数据库。请使用 `ALTER ROLE` 轮换密码，并为用户或数据库变更规划明确迁移。若要有意初始化新的空数据库，请先备份旧数据库，然后使用 `destroy --volumes`。
 
-Apple-specific handling of shared settings:
+共享设置在 Apple 工作流中的处理方式：
 
-| Setting | Apple workflow behavior |
+| 设置 | Apple 工作流行为 |
 |---|---|
-| Application and gateway variables | Passed to Sub2API from `.env` |
-| `BIND_HOST`, `SERVER_PORT` | Used for the macOS published port |
-| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | PostgreSQL first initialization only |
-| `REDIS_PASSWORD` | Applied to Redis and Sub2API |
-| `DATABASE_PORT`, `REDIS_PORT` | Internal ports are fixed to 5432 and 6379 |
-| `POSTGRES_MAX_*`, `REDIS_MAXCLIENTS` | Not currently applied to the database/cache server |
+| 应用和网关变量 | 从 `.env` 传给 Sub2API |
+| `BIND_HOST`、`SERVER_PORT` | 用于 macOS 发布端口 |
+| `POSTGRES_USER`、`POSTGRES_PASSWORD`、`POSTGRES_DB` | 仅 PostgreSQL 首次初始化时使用 |
+| `REDIS_PASSWORD` | 应用于 Redis 和 Sub2API |
+| `DATABASE_PORT`、`REDIS_PORT` | 内部端口固定为 5432 和 6379 |
+| `POSTGRES_MAX_*`、`REDIS_MAXCLIENTS` | 当前不应用到数据库/缓存服务器 |
 
-## Managed Resources
+## 受管资源
 
-The script creates only resources carrying the `org.sub2api.stack=apple-container` label:
+脚本只会创建带有 `org.sub2api.stack=apple-container` 标签的资源：
 
-| Type | Names |
+| 类型 | 名称 |
 |---|---|
-| Containers | `sub2api-apple`, `sub2api-apple-postgres`, `sub2api-apple-redis` |
-| Network | `sub2api-apple` |
-| Volumes | `sub2api-apple-data`, `sub2api-apple-postgres-data`, `sub2api-apple-redis-data` |
+| 容器 | `sub2api-apple`、`sub2api-apple-postgres`、`sub2api-apple-redis` |
+| 网络 | `sub2api-apple` |
+| 卷 | `sub2api-apple-data`、`sub2api-apple-postgres-data`、`sub2api-apple-redis-data` |
 
-The PostgreSQL volume is mounted at `/var/lib/postgresql`, retaining PostgreSQL 18's default child data directory. Sub2API and Redis also store data in child directories below their Apple volume mount points. This is required because Apple named volumes do not have Docker's copy-up and mount-point ownership behavior.
+PostgreSQL 卷挂载在 `/var/lib/postgresql`，保留 PostgreSQL 18 默认的子级数据目录。Sub2API 和 Redis 同样将数据存放在其 Apple 卷挂载点下的子目录中。这是必要的，因为 Apple 命名卷不具备 Docker 的 copy-up 和挂载点所有权行为。
 
-## Networking
+## 网络
 
-Apple `container` 1.1 does not provide Compose-style network-scoped service aliases. After PostgreSQL and Redis start, the script reads their current private-network IPv4 addresses from `container inspect`, injects those addresses into a newly created application container, and then starts Sub2API. The script does not modify `~/.config/container/config.toml` or the macOS host resolver.
+Apple `container` 1.1 不提供 Compose 风格的网络范围服务别名。PostgreSQL 和 Redis 启动后，脚本从 `container inspect` 读取它们当前的私有网络 IPv4 地址，将这些地址注入新建的应用容器，然后启动 Sub2API。脚本不会修改 `~/.config/container/config.toml` 或 macOS 主机解析器。
 
-All three services attach only to the private `sub2api-apple` network. Only the application publishes a host port; database and Redis ports remain unpublished.
+三个服务仅加入私有 `sub2api-apple` 网络。仅应用发布主机端口；数据库和 Redis 端口不对外发布。
 
-The application container is intentionally recreated by every `up` and `restart` operation because dependency VM addresses can change after they stop. Application data remains in `sub2api-apple-data`.
+每次 `up` 和 `restart` 操作都会有意重建应用容器，因为依赖的 VM 地址在停止后可能发生变化。应用数据会保留在 `sub2api-apple-data` 中。
 
-The script checks the published `/health` endpoint from macOS before reporting success. Approve the Local Network prompt on first startup. If the internal probe succeeds but the host-port probe fails with a connection reset, enable Local Network access for `container-runtime-linux`, run `container system stop` followed by `container system start`, and then run `up` again. Runtime upgrades may prompt for permission again.
+脚本在报告成功前会从 macOS 检查已发布的 `/health` 端点。首次启动时请允许 Local Network 提示。若内部探测成功但主机端口探测因连接重置失败，请为 `container-runtime-linux` 启用 Local Network 访问，依次运行 `container system stop`、`container system start`，然后再次执行 `up`。运行时升级可能会再次请求权限。
 
-## Backup and Upgrade
+## 备份与升级
 
-Pin image release tags or digests in `.env` before using this workflow for persistent data. Before an application or database image upgrade, create backups while the stack is healthy:
+为持久数据使用此工作流前，请在 `.env` 中固定镜像发布标签或 digest。升级应用或数据库镜像前，请在栈健康时创建备份：
 
 ```bash
 umask 077
@@ -164,9 +164,9 @@ container exec sub2api-apple sh -c 'tar -C "$DATA_DIR" -czf - .' \
 ./apple-container.sh status
 ```
 
-Database migrations are forward-only. Keep the previous image reference and both backups until the upgraded stack has been validated; image rollback alone cannot reverse a migrated database. Test restore procedures before relying on this workflow for important data.
+数据库迁移仅向前执行。在确认升级后的栈有效之前，请保留之前的镜像引用和两份备份；仅回滚镜像无法逆转已迁移的数据库。在将此工作流用于重要数据前，请测试恢复流程。
 
-To restore these backups into an existing stack, first ensure the image versions are compatible with the backup, then stop writers and replace both data sets:
+要将这些备份恢复到现有栈，请先确保镜像版本与备份兼容，再停止写入方并替换两组数据：
 
 ```bash
 # Ensure empty/current resources exist, then stop the stack.
@@ -199,9 +199,9 @@ container exec sub2api-apple-postgres sh -c '
 ./apple-container.sh status
 ```
 
-For disaster recovery after deleting the named volumes, run `up` once to create a fresh stack before following the restore sequence. Perform restore drills with non-production data first.
+删除命名卷后的灾难恢复中，请先运行一次 `up` 创建新栈，再执行恢复流程。请先使用非生产数据进行恢复演练。
 
-To upgrade the Apple runtime itself:
+升级 Apple runtime：
 
 ```bash
 ./apple-container.sh down
@@ -211,11 +211,11 @@ container system start
 ./apple-container.sh up
 ```
 
-## Operational Limitations
+## 运行限制
 
-- There is no `restart: unless-stopped` equivalent. Run `up` after reboot, or add your own launchd supervisor.
-- Health probes run during `up`, `restart`, and `status`; Apple `container` does not continuously schedule them.
-- Docker Compose, Testcontainers, Buildx, and tools requiring `/var/run/docker.sock` cannot use this runtime directly.
-- Named volume backup and restore must be tested before using this workflow for important data.
-- The script targets native `linux/arm64` images. The normal Sub2API release publishes an arm64 variant.
-- Runtime environment values, including credentials, are retained in Apple container configuration and are visible to users who can inspect the local runtime.
+- 没有等价于 `restart: unless-stopped` 的功能。重启后请运行 `up`，或自行增加 launchd supervisor。
+- 健康探测在 `up`、`restart` 和 `status` 期间运行；Apple `container` 不会持续调度它们。
+- Docker Compose、Testcontainers、Buildx 及需要 `/var/run/docker.sock` 的工具不能直接使用此运行时。
+- 将此工作流用于重要数据前，必须测试命名卷备份和恢复。
+- 脚本面向原生 `linux/arm64` 镜像。常规 Sub2API 发布包含 arm64 变体。
+- 包括凭据在内的运行时环境值会保留在 Apple container 配置中，能够检查本地运行时的用户可见这些值。

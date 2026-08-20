@@ -1,14 +1,14 @@
-# Layout Components
+# 布局组件
 
-Vue 3 layout components for the Sub2API frontend, built with Composition API, TypeScript, and TailwindCSS.
+用于 Sub2API 前端的 Vue 3 布局组件，使用 Composition API、TypeScript 和 TailwindCSS 构建。
 
-## Components
+## 组件
 
 ### 1. AppLayout.vue
 
-Main application layout with sidebar and header.
+包含侧边栏和页头的主应用布局。
 
-**Usage:**
+**用法：**
 
 ```vue
 <template>
@@ -24,61 +24,61 @@ import { AppLayout } from '@/components/layout'
 </script>
 ```
 
-**Features:**
+**特性：**
 
-- Responsive sidebar (collapsible)
-- Fixed header at top
-- Main content area with slot
-- Automatically adjusts margin based on sidebar state
+- 响应式侧边栏（可折叠）。
+- 顶部固定页头。
+- 带 slot 的主内容区域。
+- 根据侧边栏状态自动调整边距。
 
 ---
 
 ### 2. AppSidebar.vue
 
-Navigation sidebar with user and admin sections.
+包含用户和管理区块的导航侧边栏。
 
-**Features:**
+**特性：**
 
-- Logo/brand at top
-- User navigation links:
+- 顶部 Logo/品牌。
+- 用户导航链接：
   - Dashboard
   - API Keys
   - Usage
   - Redeem
   - Profile
-- Admin navigation links (shown only if user is admin):
+- 管理导航链接（仅管理员显示）：
   - Admin Dashboard
   - Users
   - Groups
   - Accounts
   - Proxies
   - Redeem Codes
-- Collapsible sidebar with toggle button
-- Active route highlighting
-- Icons using HTML entities
-- Responsive (mobile-friendly)
+- 带切换按钮的可折叠侧边栏。
+- 活动路由高亮。
+- 使用 HTML 实体图标。
+- 响应式设计（移动端友好）。
 
-**Used automatically by AppLayout** - no need to import separately.
+**由 AppLayout 自动使用**，无需单独导入。
 
 ---
 
 ### 3. AppHeader.vue
 
-Top header with user info and actions.
+带有用户信息和操作的顶部页头。
 
-**Features:**
+**特性：**
 
-- Mobile menu toggle button
-- Page title (from route meta or slot)
-- User balance display (desktop only)
-- User dropdown menu with:
+- 移动端菜单切换按钮。
+- 页面标题（来自 route meta 或 slot）。
+- 用户余额显示（仅桌面端）。
+- 包含以下内容的用户下拉菜单：
   - Profile link
   - Logout button
-- User avatar with initials
-- Click-outside handling for dropdown
-- Responsive design
+- 显示姓名首字母的用户头像。
+- 下拉菜单的点击外部关闭处理。
+- 响应式设计。
 
-**Usage with custom title:**
+**使用自定义标题：**
 
 ```vue
 <template>
@@ -90,15 +90,15 @@ Top header with user info and actions.
 </template>
 ```
 
-**Used automatically by AppLayout** - no need to import separately.
+**由 AppLayout 自动使用**，无需单独导入。
 
 ---
 
 ### 4. AuthLayout.vue
 
-Simple centered layout for authentication pages (login/register).
+用于认证页面（登录/注册）的简单居中布局。
 
-**Usage:**
+**用法：**
 
 ```vue
 <template>
@@ -129,20 +129,20 @@ function handleLogin() {
 </script>
 ```
 
-**Features:**
+**特性：**
 
-- Centered card container
-- Gradient background
-- Logo/brand at top
-- Main content slot
-- Optional footer slot for links
-- Fully responsive
+- 居中的卡片容器。
+- 渐变背景。
+- 顶部 Logo/品牌。
+- 主内容 slot。
+- 可选的页脚链接 slot。
+- 完整响应式支持。
 
 ---
 
-## Route Configuration
+## 路由配置
 
-To set page titles in the header, add meta to your routes:
+要设置页头中的页面标题，请向路由添加 meta：
 
 ```typescript
 // router/index.ts
@@ -163,20 +163,20 @@ const routes = [
 
 ---
 
-## Store Dependencies
+## Store 依赖
 
-These components use the following Pinia stores:
+这些组件使用以下 Pinia store：
 
-- **useAuthStore**: For user authentication state, role checking, and logout
-- **useAppStore**: For sidebar state management and toast notifications
+- **useAuthStore**：用于用户认证状态、角色检查和登出。
+- **useAppStore**：用于侧边栏状态管理和 Toast 通知。
 
-Make sure these stores are properly initialized in your app.
+请确保在应用中正确初始化这些 store。
 
 ---
 
-## Styling
+## 样式
 
-All components use TailwindCSS utility classes. Make sure your `tailwind.config.js` includes the component paths:
+所有组件使用 TailwindCSS utility class。请确保 `tailwind.config.js` 包含组件路径：
 
 ```js
 module.exports = {
@@ -187,32 +187,32 @@ module.exports = {
 
 ---
 
-## Icons
+## 图标
 
-Components use HTML entity icons for simplicity:
+组件为简便起见使用 HTML 实体图标：
 
-- &#128200; Chart (Dashboard)
-- &#128273; Key (API Keys)
-- &#128202; Bar Chart (Usage)
-- &#127873; Gift (Redeem)
-- &#128100; User (Profile)
-- &#128268; Admin
-- &#128101; Users
-- &#128193; Folder (Groups)
-- &#127760; Globe (Accounts)
-- &#128260; Network (Proxies)
-- &#127991; Ticket (Redeem Codes)
+- &#128200; 图表（Dashboard）
+- &#128273; 密钥（API Keys）
+- &#128202; 柱状图（Usage）
+- &#127873; 礼物（Redeem）
+- &#128100; 用户（Profile）
+- &#128268; 管理（Admin）
+- &#128101; 用户（Users）
+- &#128193; 文件夹（Groups）
+- &#127760; 地球（Accounts）
+- &#128260; 网络（Proxies）
+- &#127991; 票券（Redeem Codes）
 
-You can replace these with your preferred icon library (e.g., Heroicons, Font Awesome) if needed.
+如有需要，可将这些替换为您偏好的图标库（如 Heroicons、Font Awesome）。
 
 ---
 
-## Mobile Responsiveness
+## 移动端响应式
 
-All components are fully responsive:
+所有组件均完整响应式：
 
-- **AppSidebar**: Fixed positioning on desktop, hidden by default on mobile
-- **AppHeader**: Shows mobile menu toggle on small screens, hides balance display
-- **AuthLayout**: Adapts padding and card size for mobile devices
+- **AppSidebar**：桌面端固定定位，移动端默认隐藏。
+- **AppHeader**：小屏幕显示移动菜单切换，隐藏余额显示。
+- **AuthLayout**：会针对移动设备适配 padding 和卡片尺寸。
 
-The sidebar uses Tailwind's responsive breakpoints (md:) to adjust behavior.
+侧边栏使用 Tailwind 的响应式 breakpoint（`md:`）调整行为。

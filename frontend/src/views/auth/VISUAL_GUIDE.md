@@ -1,10 +1,10 @@
-# Authentication Views Visual Guide
+# 认证视图视觉指南
 
-This document describes the visual design and layout of the authentication views.
+本文说明认证视图的视觉设计与布局。
 
-## Layout Structure
+## 布局结构
 
-Both LoginView and RegisterView use the AuthLayout component, which provides:
+LoginView 和 RegisterView 均使用 AuthLayout 组件，该组件提供：
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -32,9 +32,9 @@ Max Width: 28rem (448px)
 Centered: Both horizontally and vertically
 ```
 
-## LoginView Visual Design
+## LoginView 视觉设计
 
-### Default State
+### 默认状态
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -70,7 +70,7 @@ Centered: Both horizontally and vertically
 └─────────────────────────────────────────────┘
 ```
 
-### Loading State
+### 加载状态
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -95,7 +95,7 @@ Centered: Both horizontally and vertically
 └─────────────────────────────────────────────┘
 ```
 
-### Error State
+### 错误状态
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -126,9 +126,9 @@ Centered: Both horizontally and vertically
 └─────────────────────────────────────────────┘
 ```
 
-## RegisterView Visual Design
+## RegisterView 视觉设计
 
-### Default State
+### 默认状态
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -177,7 +177,7 @@ Centered: Both horizontally and vertically
 └─────────────────────────────────────────────┘
 ```
 
-### Validation Errors
+### 校验错误
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -214,7 +214,7 @@ Centered: Both horizontally and vertically
 └─────────────────────────────────────────────┘
 ```
 
-### Loading State
+### 加载状态
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -232,100 +232,100 @@ Centered: Both horizontally and vertically
 └─────────────────────────────────────────────┘
 ```
 
-## Color Palette
+## 调色板
 
-### Primary Colors
+### 主色
 
-- **Indigo-600**: `#4F46E5` - Primary buttons, links, brand color
-- **Indigo-700**: `#4338CA` - Button hover state
-- **Indigo-500**: `#6366F1` - Focus ring
+- **Indigo-600**：`#4F46E5` - 主按钮、链接和品牌色。
+- **Indigo-700**：`#4338CA` - 按钮悬停状态。
+- **Indigo-500**：`#6366F1` - 焦点环。
 
-### Neutral Colors
+### 中性色
 
-- **Gray-900**: `#111827` - Headings
-- **Gray-700**: `#374151` - Labels
-- **Gray-600**: `#4B5563` - Body text
-- **Gray-500**: `#6B7280` - Helper text
-- **Gray-300**: `#D1D5DB` - Borders
-- **Gray-100**: `#F3F4F6` - Disabled backgrounds
-- **White**: `#FFFFFF` - Card backgrounds
+- **Gray-900**：`#111827` - 标题。
+- **Gray-700**：`#374151` - 标签。
+- **Gray-600**：`#4B5563` - 正文。
+- **Gray-500**：`#6B7280` - 辅助文字。
+- **Gray-300**：`#D1D5DB` - 边框。
+- **Gray-100**：`#F3F4F6` - 禁用背景。
+- **White**：`#FFFFFF` - 卡片背景。
 
-### Error Colors
+### 错误颜色
 
-- **Red-600**: `#DC2626` - Error text
-- **Red-500**: `#EF4444` - Error border, focus ring
-- **Red-50**: `#FEF2F2` - Error banner background
-- **Red-200**: `#FECACA` - Error banner border
+- **Red-600**：`#DC2626` - 错误文字。
+- **Red-500**：`#EF4444` - 错误边框、焦点环。
+- **Red-50**：`#FEF2F2` - 错误横幅背景。
+- **Red-200**：`#FECACA` - 错误横幅边框。
 
-### Success Colors
+### 成功颜色
 
-- **Green-600**: `#16A34A` - Success text
-- **Green-50**: `#F0FDF4` - Success banner background
+- **Green-600**：`#16A34A` - 成功文字。
+- **Green-50**：`#F0FDF4` - 成功横幅背景。
 
-### Background Gradient
+### 背景渐变
 
-- **From**: Indigo-100 (`#E0E7FF`)
-- **Via**: White (`#FFFFFF`)
-- **To**: Purple-100 (`#F3E8FF`)
+- **起点**：Indigo-100（`#E0E7FF`）。
+- **中间**：White（`#FFFFFF`）。
+- **终点**：Purple-100（`#F3E8FF`）。
 
-## Typography
+## 排版
 
-### Font Family
+### 字体族
 
-- **Default**: System font stack (`ui-sans-serif, system-ui, -apple-system, ...`)
+- **默认**：系统字体栈（`ui-sans-serif, system-ui, -apple-system, ...`）。
 
-### Font Sizes
+### 字号
 
-- **Headings (h2)**: `1.5rem` (24px), `font-bold`
-- **Body**: `0.875rem` (14px), `font-normal`
-- **Labels**: `0.875rem` (14px), `font-medium`
-- **Helper text**: `0.75rem` (12px), `font-normal`
-- **Error text**: `0.875rem` (14px), `font-normal`
+- **标题（h2）**：`1.5rem`（24px）、`font-bold`。
+- **正文**：`0.875rem`（14px）、`font-normal`。
+- **标签**：`0.875rem`（14px）、`font-medium`。
+- **辅助文字**：`0.75rem`（12px）、`font-normal`。
+- **错误文字**：`0.875rem`（14px）、`font-normal`。
 
-### Line Heights
+### 行高
 
-- **Headings**: `1.5`
-- **Body**: `1.5`
-- **Helper text**: `1.25`
+- **标题**：`1.5`。
+- **正文**：`1.5`。
+- **辅助文字**：`1.25`。
 
-## Spacing
+## 间距
 
-### Card Spacing
+### 卡片间距
 
-- **Padding**: `2rem` (32px) all sides
-- **Gap between sections**: `1.5rem` (24px)
-- **Gap between fields**: `1rem` (16px)
+- **内边距**：四边均为 `2rem`（32px）。
+- **区块间距**：`1.5rem`（24px）。
+- **字段间距**：`1rem`（16px）。
 
-### Input Spacing
+### 输入框间距
 
-- **Padding**: `0.5rem 1rem` (8px 16px)
-- **Label margin-bottom**: `0.25rem` (4px)
-- **Error text margin-top**: `0.25rem` (4px)
+- **内边距**：`0.5rem 1rem`（8px 16px）。
+- **标签 margin-bottom**：`0.25rem`（4px）。
+- **错误文字 margin-top**：`0.25rem`（4px）。
 
-### Button Spacing
+### 按钮间距
 
-- **Padding**: `0.5rem 1rem` (8px 16px)
-- **Margin-top**: `1rem` (16px)
+- **内边距**：`0.5rem 1rem`（8px 16px）。
+- **margin-top**：`1rem`（16px）。
 
-## Interactive States
+## 交互状态
 
-### Input States
+### 输入框状态
 
-**Default:**
+**默认：**
 
 ```css
 border: 1px solid #D1D5DB (gray-300)
 focus: 2px ring #6366F1 (indigo-500)
 ```
 
-**Error:**
+**错误：**
 
 ```css
 border: 1px solid #EF4444 (red-500)
 focus: 2px ring #EF4444 (red-500)
 ```
 
-**Disabled:**
+**禁用：**
 
 ```css
 background: #F3F4F6 (gray-100)
@@ -333,9 +333,9 @@ cursor: not-allowed
 opacity: 0.6
 ```
 
-### Button States
+### 按钮状态
 
-**Default:**
+**默认：**
 
 ```css
 background: #4F46E5 (indigo-600)
@@ -343,28 +343,28 @@ text: #FFFFFF (white)
 shadow: shadow-sm
 ```
 
-**Hover:**
+**悬停：**
 
 ```css
 background: #4338CA (indigo-700)
 transition: colors 150ms
 ```
 
-**Focus:**
+**焦点：**
 
 ```css
 outline: none
 ring: 2px offset-2 #6366F1 (indigo-500)
 ```
 
-**Disabled:**
+**禁用：**
 
 ```css
 opacity: 0.5
 cursor: not-allowed
 ```
 
-**Loading:**
+**加载：**
 
 ```css
 opacity: 0.5
@@ -372,27 +372,27 @@ cursor: not-allowed
 + spinning icon
 ```
 
-### Link States
+### 链接状态
 
-**Default:**
+**默认：**
 
 ```css
 color: #4F46E5 (indigo-600)
 font-weight: 500 (medium)
 ```
 
-**Hover:**
+**悬停：**
 
 ```css
 color: #6366F1 (indigo-500)
 transition: colors 150ms
 ```
 
-## Responsive Design
+## 响应式设计
 
-### Breakpoints
+### 断点
 
-**Mobile (< 640px):**
+**移动端（< 640px）：**
 
 ```
 - Full width container
@@ -400,7 +400,7 @@ transition: colors 150ms
 - Smaller text sizes
 ```
 
-**Tablet (640px - 768px):**
+**平板端（640px - 768px）：**
 
 ```
 - Max width: 28rem (448px)
@@ -408,7 +408,7 @@ transition: colors 150ms
 - Standard spacing
 ```
 
-**Desktop (> 768px):**
+**桌面端（> 768px）：**
 
 ```
 - Max width: 28rem (448px)
@@ -416,24 +416,24 @@ transition: colors 150ms
 - Standard spacing
 ```
 
-### Mobile Optimizations
+### 移动端优化
 
-1. Touch-friendly tap targets (44px minimum)
-2. Proper keyboard handling on mobile
-3. Prevent zoom on input focus
-4. Responsive font sizes
-5. Full-width inputs
-6. Adequate spacing for thumbs
+1. 触摸友好的点击目标（至少 44px）。
+2. 移动端正确的键盘处理。
+3. 防止聚焦输入框时缩放。
+4. 响应式字号。
+5. 全宽输入框。
+6. 为拇指操作提供足够间距。
 
-## Animations
+## 动画
 
-### Transitions
+### 过渡
 
-- Color changes: `150ms ease-in-out`
-- Opacity changes: `150ms ease-in-out`
-- Transform: `150ms ease-in-out`
+- 颜色变化：`150ms ease-in-out`。
+- 透明度变化：`150ms ease-in-out`。
+- Transform：`150ms ease-in-out`。
 
-### Loading Spinner
+### 加载 Spinner
 
 ```css
 @keyframes spin {
@@ -447,45 +447,45 @@ transition: colors 150ms
 animation: spin 1s linear infinite;
 ```
 
-### Toast Animations
+### Toast 动画
 
-- Enter: Slide in from right + fade in
-- Exit: Slide out to right + fade out
-- Duration: 300ms
+- 进入：从右侧滑入 + 淡入。
+- 退出：向右侧滑出 + 淡出。
+- 时长：300ms。
 
-## Accessibility Features
+## 无障碍特性
 
-### Visual Indicators
+### 视觉指示器
 
-- Clear focus states (2px ring)
-- Error states (red border + red text)
-- Loading states (spinner + text)
-- Success states (green toast)
+- 清晰的焦点状态（2px ring）。
+- 错误状态（红色边框 + 红色文字）。
+- 加载状态（spinner + 文字）。
+- 成功状态（绿色 Toast）。
 
-### Color Contrast
+### 颜色对比度
 
-- Text on white: > 7:1 (AAA)
-- Labels on white: > 4.5:1 (AA)
-- Buttons: > 4.5:1 (AA)
-- Error text: > 4.5:1 (AA)
+- 白底文字：> 7:1（AAA）。
+- 白底标签：> 4.5:1（AA）。
+- 按钮：> 4.5:1（AA）。
+- 错误文字：> 4.5:1（AA）。
 
-### Interactive Elements
+### 交互元素
 
-- Minimum size: 44x44px (mobile)
-- Clear hover states
-- Distinct disabled states
-- Keyboard accessible
+- 最小尺寸：44x44px（移动端）。
+- 清晰的悬停状态。
+- 明显的禁用状态。
+- 可通过键盘访问。
 
-### Screen Reader Support
+### 屏幕阅读器支持
 
-- Proper labels on all inputs
-- ARIA attributes where needed
-- Error announcements
-- Loading state announcements
+- 所有输入框使用正确 label。
+- 需要时使用 ARIA 属性。
+- 错误提示。
+- 加载状态提示。
 
-## Icons
+## 图标
 
-### Loading Spinner
+### 加载 Spinner
 
 ```svg
 <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -494,7 +494,7 @@ animation: spin 1s linear infinite;
 </svg>
 ```
 
-### Error Icon
+### 错误图标
 
 ```svg
 <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
@@ -502,44 +502,44 @@ animation: spin 1s linear infinite;
 </svg>
 ```
 
-## Browser Compatibility
+## 浏览器兼容性
 
-### Supported Browsers
+### 支持的浏览器
 
-- Chrome/Edge: Latest 2 versions
-- Firefox: Latest 2 versions
-- Safari: Latest 2 versions
-- Mobile Safari: iOS 14+
-- Chrome Mobile: Latest 2 versions
+- Chrome/Edge：最近 2 个版本。
+- Firefox：最近 2 个版本。
+- Safari：最近 2 个版本。
+- Mobile Safari：iOS 14+。
+- Chrome Mobile：最近 2 个版本。
 
-### CSS Features Used
+### 使用的 CSS 特性
 
-- Flexbox (full support)
-- CSS Grid (full support)
-- CSS Transitions (full support)
-- CSS Custom Properties (full support)
-- Gradient backgrounds (full support)
+- Flexbox（完全支持）。
+- CSS Grid（完全支持）。
+- CSS Transitions（完全支持）。
+- CSS Custom Properties（完全支持）。
+- 渐变背景（完全支持）。
 
-### JavaScript Features Used
+### 使用的 JavaScript 特性
 
-- ES2015+ syntax
-- Async/await
-- Optional chaining
-- Nullish coalescing
-- Modules
+- ES2015+ 语法。
+- Async/await。
+- Optional chaining。
+- Nullish coalescing。
+- Modules。
 
-## Print Styles
+## 打印样式
 
-(Not applicable for authentication pages - users shouldn't print login forms)
+（不适用于认证页面，用户不应打印登录表单。）
 
-## Dark Mode Considerations
+## 深色模式注意事项
 
-**Future Enhancement:**
+**后续增强：**
 
-- Dark mode toggle in user preferences
-- System preference detection
-- Persistent dark mode setting
-- Adjusted color palette for dark backgrounds
+- 用户偏好中的深色模式切换。
+- 系统偏好检测。
+- 持久化深色模式设置。
+- 针对深色背景调整调色板。
 
 ```css
 /* Example dark mode colors (not implemented yet) */
@@ -548,95 +548,95 @@ dark:text-white
 dark:border-gray-700
 ```
 
-## Performance Metrics
+## 性能指标
 
-### Target Metrics
+### 目标指标
 
-- First Contentful Paint (FCP): < 1s
-- Largest Contentful Paint (LCP): < 2.5s
-- Time to Interactive (TTI): < 3s
-- Cumulative Layout Shift (CLS): < 0.1
-- First Input Delay (FID): < 100ms
+- First Contentful Paint（FCP）：< 1s。
+- Largest Contentful Paint（LCP）：< 2.5s。
+- Time to Interactive（TTI）：< 3s。
+- Cumulative Layout Shift（CLS）：< 0.1。
+- First Input Delay（FID）：< 100ms。
 
-### Optimization Strategies
+### 优化策略
 
-- Lazy load non-critical resources
-- Minimize initial bundle size
-- Use efficient animations (transform, opacity)
-- Optimize images (logo, icons)
-- Preconnect to API domain
-- Cache static assets
+- 懒加载非关键资源。
+- 最小化初始 bundle 大小。
+- 使用高效动画（transform、opacity）。
+- 优化图像（Logo、图标）。
+- 预连接 API 域名。
+- 缓存静态资源。
 
-## Component Size
+## 组件大小
 
-### Bundle Impact
+### Bundle 影响
 
-- LoginView.vue: ~4 KB (minified)
-- RegisterView.vue: ~6 KB (minified)
-- AuthLayout.vue: ~1 KB (minified)
-- Total: ~11 KB (excluding dependencies)
+- LoginView.vue：约 4 KB（minified）。
+- RegisterView.vue：约 6 KB（minified）。
+- AuthLayout.vue：约 1 KB（minified）。
+- 合计：约 11 KB（不含依赖）。
 
-### Dependencies
+### 依赖
 
-- Vue 3: ~40 KB (runtime)
-- Vue Router: ~15 KB
-- Pinia: ~10 KB
-- Total framework overhead: ~65 KB (gzipped)
+- Vue 3：约 40 KB（runtime）。
+- Vue Router：约 15 KB。
+- Pinia：约 10 KB。
+- 框架开销合计：约 65 KB（gzipped）。
 
-## Testing Checklist
+## 测试检查清单
 
-### Visual Regression Tests
+### 视觉回归测试
 
-- [ ] Default state (login)
-- [ ] Default state (register)
-- [ ] Loading state
-- [ ] Error state (validation)
-- [ ] Error state (API)
-- [ ] Success state
-- [ ] Mobile view
-- [ ] Tablet view
-- [ ] Desktop view
-- [ ] Focus states
-- [ ] Hover states
+- [ ] 默认状态（登录）。
+- [ ] 默认状态（注册）。
+- [ ] 加载状态。
+- [ ] 错误状态（校验）。
+- [ ] 错误状态（API）。
+- [ ] 成功状态。
+- [ ] 移动端视图。
+- [ ] 平板端视图。
+- [ ] 桌面端视图。
+- [ ] 焦点状态。
+- [ ] 悬停状态。
 
-### Cross-browser Tests
+### 跨浏览器测试
 
-- [ ] Chrome (Windows, Mac, Linux)
-- [ ] Firefox (Windows, Mac, Linux)
-- [ ] Safari (Mac, iOS)
-- [ ] Edge (Windows)
-- [ ] Chrome Mobile (Android)
-- [ ] Safari Mobile (iOS)
+- [ ] Chrome（Windows、Mac、Linux）。
+- [ ] Firefox（Windows、Mac、Linux）。
+- [ ] Safari（Mac、iOS）。
+- [ ] Edge（Windows）。
+- [ ] Chrome Mobile（Android）。
+- [ ] Safari Mobile（iOS）。
 
-### Accessibility Tests
+### 无障碍测试
 
-- [ ] Keyboard navigation
-- [ ] Screen reader (NVDA)
-- [ ] Screen reader (JAWS)
-- [ ] Screen reader (VoiceOver)
-- [ ] Color contrast
-- [ ] Focus indicators
-- [ ] Error announcements
+- [ ] 键盘导航。
+- [ ] 屏幕阅读器（NVDA）。
+- [ ] 屏幕阅读器（JAWS）。
+- [ ] 屏幕阅读器（VoiceOver）。
+- [ ] 颜色对比度。
+- [ ] 焦点指示器。
+- [ ] 错误提示。
 
-## Design Assets
+## 设计资产
 
-### Figma/Sketch Files
+### Figma/Sketch 文件
 
-(Not applicable - designed directly in code with Tailwind)
+（不适用：使用 Tailwind 直接在代码中设计。）
 
-### Design Tokens
+### 设计 Token
 
-- Defined in Tailwind config
-- Consistent with design system
-- Reusable across all components
+- 在 Tailwind config 中定义。
+- 与设计系统一致。
+- 可在所有组件中复用。
 
-### Iconography
+### 图标设计
 
-- SVG icons inline
-- Heroicons (outline and solid)
-- Consistent stroke width
-- Accessible with proper ARIA labels
+- 内联 SVG 图标。
+- Heroicons（outline 和 solid）。
+- 一致的 stroke width。
+- 具有正确 ARIA 标签的无障碍支持。
 
 ---
 
-**Note:** This visual guide is for reference and documentation purposes. The actual implementation is in the Vue components using TailwindCSS classes.
+**注意：** 本视觉指南仅供参考和文档说明。实际实现位于使用 TailwindCSS class 的 Vue 组件中。

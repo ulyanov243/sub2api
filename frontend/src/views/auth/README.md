@@ -1,24 +1,24 @@
-# Authentication Views
+# 认证视图
 
-This directory contains Vue 3 authentication views for the Sub2API frontend application.
+此目录包含 Sub2API 前端应用的 Vue 3 认证视图。
 
-## Components
+## 组件
 
 ### LoginView.vue
 
-Login page for existing users to authenticate.
+供现有用户认证的登录页面。
 
-**Features:**
+**特性：**
 
-- Username and password inputs with validation
-- Remember me checkbox for persistent sessions
-- Form validation with real-time error display
-- Loading state during authentication
-- Error message display for failed login attempts
-- Redirect to dashboard on successful login
-- Link to registration page for new users
+- 带校验的用户名和密码输入。
+- 用于持久会话的“记住我”复选框。
+- 带实时错误显示的表单校验。
+- 认证过程中的加载状态。
+- 登录失败时显示错误消息。
+- 登录成功后重定向至仪表盘。
+- 为新用户提供注册链接。
 
-**Usage:**
+**用法：**
 
 ```vue
 <template>
@@ -30,42 +30,42 @@ import { LoginView } from '@/views/auth'
 </script>
 ```
 
-**Route:**
+**路由：**
 
-- Path: `/login`
-- Name: `Login`
-- Meta: `{ requiresAuth: false }`
+- 路径：`/login`
+- 名称：`Login`
+- Meta：`{ requiresAuth: false }`
 
-**Validation Rules:**
+**校验规则：**
 
-- Username: Required, minimum 3 characters
-- Password: Required, minimum 6 characters
+- 用户名：必填，至少 3 个字符。
+- 密码：必填，至少 6 个字符。
 
-**Behavior:**
+**行为：**
 
-- Calls `authStore.login()` with credentials
-- Shows success toast on successful login
-- Shows error toast and inline error message on failure
-- Redirects to `/dashboard` or intended route from query parameter
-- Redirects authenticated users away from login page
+- 使用凭据调用 `authStore.login()`。
+- 登录成功时显示成功 Toast。
+- 失败时显示错误 Toast 和内联错误消息。
+- 重定向至 `/dashboard` 或 query 参数中的目标路由。
+- 将已认证用户从登录页重定向离开。
 
 ### RegisterView.vue
 
-Registration page for new users to create accounts.
+供新用户创建账户的注册页面。
 
-**Features:**
+**特性：**
 
-- Username, email, password, and confirm password inputs
-- Comprehensive form validation
-- Password strength requirements (8+ characters, letters + numbers)
-- Email format validation with regex
-- Password match validation
-- Loading state during registration
-- Error message display for failed registration
-- Redirect to dashboard on success
-- Link to login page for existing users
+- 用户名、邮箱、密码和确认密码输入。
+- 完整表单校验。
+- 密码强度要求（8+ 个字符、字母 + 数字）。
+- 使用正则表达式的邮箱格式校验。
+- 密码匹配校验。
+- 注册过程中的加载状态。
+- 注册失败时显示错误消息。
+- 成功后重定向至仪表盘。
+- 为现有用户提供登录页链接。
 
-**Usage:**
+**用法：**
 
 ```vue
 <template>
@@ -77,42 +77,42 @@ import { RegisterView } from '@/views/auth'
 </script>
 ```
 
-**Route:**
+**路由：**
 
-- Path: `/register`
-- Name: `Register`
-- Meta: `{ requiresAuth: false }`
+- 路径：`/register`
+- 名称：`Register`
+- Meta：`{ requiresAuth: false }`
 
-**Validation Rules:**
+**校验规则：**
 
-- Username:
-  - Required
-  - 3-50 characters
-  - Only letters, numbers, underscores, and hyphens
-- Email:
-  - Required
-  - Valid email format (RFC 5322 regex)
-- Password:
-  - Required
-  - Minimum 8 characters
-  - Must contain at least one letter and one number
-- Confirm Password:
-  - Required
-  - Must match password
+- 用户名：
+  - 必填。
+  - 3-50 个字符。
+  - 仅限字母、数字、下划线和连字符。
+- 邮箱：
+  - 必填。
+  - 合法邮箱格式（RFC 5322 正则表达式）。
+- 密码：
+  - 必填。
+  - 至少 8 个字符。
+  - 必须至少包含一个字母和一个数字。
+- 确认密码：
+  - 必填。
+  - 必须与密码匹配。
 
-**Behavior:**
+**行为：**
 
-- Calls `authStore.register()` with user data
-- Shows success toast on successful registration
-- Shows error toast and inline error message on failure
-- Redirects to `/dashboard` after successful registration
-- Redirects authenticated users away from register page
+- 使用用户数据调用 `authStore.register()`。
+- 注册成功时显示成功 Toast。
+- 失败时显示错误 Toast 和内联错误消息。
+- 注册成功后重定向至 `/dashboard`。
+- 将已认证用户从注册页重定向离开。
 
-## Architecture
+## 架构
 
-### Component Structure
+### 组件结构
 
-Both views follow a consistent structure:
+两个视图遵循一致的结构：
 
 ```
 <template>
@@ -138,68 +138,68 @@ Both views follow a consistent structure:
 </script>
 ```
 
-### State Management
+### 状态管理
 
-Both views use:
+两个视图都使用：
 
-- `useAuthStore()` - For authentication actions (login, register)
-- `useAppStore()` - For toast notifications and UI feedback
-- `useRouter()` - For navigation and redirects
+- `useAuthStore()` - 用于认证操作（登录、注册）。
+- `useAppStore()` - 用于 Toast 通知和 UI 反馈。
+- `useRouter()` - 用于导航和重定向。
 
-### Validation Strategy
+### 校验策略
 
-**Client-side Validation:**
+**客户端校验：**
 
-- Real-time validation on form submission
-- Field-level error messages
-- Comprehensive validation rules
-- TypeScript type safety
+- 提交表单时进行实时校验。
+- 字段级错误消息。
+- 完整校验规则。
+- TypeScript 类型安全。
 
-**Server-side Validation:**
+**服务端校验：**
 
-- Backend API validates all inputs
-- Error responses handled gracefully
-- User-friendly error messages displayed
+- Backend API 校验所有输入。
+- 正确处理错误响应。
+- 显示用户友好的错误消息。
 
-### Styling
+### 样式
 
-**Design System:**
+**设计系统：**
 
-- TailwindCSS utility classes
-- Consistent color scheme (indigo primary)
-- Responsive design
-- Accessible form controls
-- Loading states with spinner animations
+- TailwindCSS utility class。
+- 一致的配色方案（indigo 为主色）。
+- 响应式设计。
+- 无障碍表单控件。
+- 带 spinner 动画的加载状态。
 
-**Visual Feedback:**
+**视觉反馈：**
 
-- Red border on invalid fields
-- Error messages below inputs
-- Global error banner for API errors
-- Success toasts on completion
-- Loading spinner on submit button
+- 无效字段显示红色边框。
+- 输入框下方显示错误消息。
+- API 错误显示全局错误横幅。
+- 完成时显示成功 Toast。
+- 提交按钮显示加载 spinner。
 
-## Dependencies
+## 依赖
 
-### Components
+### 组件
 
-- `AuthLayout` - Layout wrapper for auth pages from `@/components/layout`
+- `AuthLayout` - 来自 `@/components/layout` 的认证页面布局包装器。
 
-### Stores
+### Store
 
-- `authStore` - Authentication state management from `@/stores/auth`
-- `appStore` - Application state and toasts from `@/stores/app`
+- `authStore` - 来自 `@/stores/auth` 的认证状态管理。
+- `appStore` - 来自 `@/stores/app` 的应用状态和 Toast。
 
-### Libraries
+### 库
 
-- Vue 3 Composition API
-- Vue Router for navigation
-- Pinia for state management
-- TypeScript for type safety
+- Vue 3 Composition API。
+- 用于导航的 Vue Router。
+- 用于状态管理的 Pinia。
+- 用于类型安全的 TypeScript。
 
-## Usage Examples
+## 使用示例
 
-### Basic Login Flow
+### 基本登录流程
 
 ```typescript
 // User enters credentials
@@ -221,7 +221,7 @@ await handleLogin()
 // - Form remains editable
 ```
 
-### Basic Registration Flow
+### 基本注册流程
 
 ```typescript
 // User enters registration data
@@ -245,9 +245,9 @@ await handleRegister()
 // - Form remains editable
 ```
 
-## Error Handling
+## 错误处理
 
-### Client-side Errors
+### 客户端错误
 
 ```typescript
 // Validation errors
@@ -257,7 +257,7 @@ errors.password = 'Password must be at least 8 characters with letters and numbe
 errors.confirmPassword = 'Passwords do not match'
 ```
 
-### Server-side Errors
+### 服务端错误
 
 ```typescript
 // API error responses
@@ -274,87 +274,87 @@ errorMessage.value = 'Username already exists'
 appStore.showError('Username already exists')
 ```
 
-## Accessibility
+## 无障碍
 
-- Semantic HTML elements (`<label>`, `<input>`, `<button>`)
-- Proper `for` attributes on labels
-- ARIA attributes for loading states
-- Keyboard navigation support
-- Focus management
-- Error announcements
-- Sufficient color contrast
+- 语义化 HTML 元素（`<label>`、`<input>`、`<button>`）。
+- label 上正确的 `for` 属性。
+- 用于加载状态的 ARIA 属性。
+- 键盘导航支持。
+- 焦点管理。
+- 错误提示。
+- 足够的颜色对比度。
 
-## Testing Considerations
+## 测试注意事项
 
-### Unit Tests
+### 单元测试
 
-- Form validation logic
-- Error handling
-- State management
-- Router navigation
+- 表单校验逻辑。
+- 错误处理。
+- 状态管理。
+- Router 导航。
 
-### Integration Tests
+### 集成测试
 
-- Full login flow
-- Full registration flow
-- Error scenarios
-- Redirect behavior
+- 完整登录流程。
+- 完整注册流程。
+- 错误场景。
+- 重定向行为。
 
-### E2E Tests
+### E2E 测试
 
-- Complete user journeys
-- Form interactions
-- API integration
-- Success/error states
+- 完整用户旅程。
+- 表单交互。
+- API 集成。
+- 成功/错误状态。
 
-## Future Enhancements
+## 后续增强
 
-Potential improvements:
+可能的改进：
 
-- OAuth/SSO integration (Google, GitHub)
-- Two-factor authentication (2FA)
-- Password strength meter
-- Email verification flow
-- Forgot password functionality
-- Social login buttons
-- CAPTCHA integration
-- Session timeout warnings
-- Password visibility toggle
-- Autofill support enhancement
+- OAuth/SSO 集成（Google、GitHub）。
+- 双因素认证（2FA）。
+- 密码强度计。
+- 邮箱验证流程。
+- 忘记密码功能。
+- 社交登录按钮。
+- CAPTCHA 集成。
+- 会话超时警告。
+- 密码可见性切换。
+- 自动填充支持增强。
 
-## Security Considerations
+## 安全注意事项
 
-- Passwords are never logged or displayed
-- HTTPS required in production
-- JWT tokens stored securely in localStorage
-- CORS protection on API
-- XSS protection with Vue's automatic escaping
-- CSRF protection with token-based auth
-- Rate limiting on backend API
-- Input sanitization
-- Secure password requirements
+- 绝不记录或显示密码。
+- 生产环境必须使用 HTTPS。
+- JWT token 安全存储在 localStorage 中。
+- API 的 CORS 防护。
+- 使用 Vue 自动转义防护 XSS。
+- 使用基于 token 的认证防护 CSRF。
+- Backend API 限流。
+- 输入净化。
+- 安全的密码要求。
 
-## Performance
+## 性能
 
-- Lazy-loaded routes
-- Minimal bundle size
-- Fast initial render
-- Optimized re-renders with reactive refs
-- No unnecessary watchers
-- Efficient form validation
+- 懒加载路由。
+- 最小 bundle 大小。
+- 快速首次渲染。
+- 通过 reactive ref 优化重复渲染。
+- 没有不必要的 watcher。
+- 高效的表单校验。
 
-## Browser Support
+## 浏览器支持
 
-- Modern browsers (Chrome, Firefox, Safari, Edge)
-- ES2015+ required
-- Flexbox and CSS Grid
-- Tailwind CSS utilities
-- Vue 3 runtime
+- 现代浏览器（Chrome、Firefox、Safari、Edge）。
+- 需要 ES2015+。
+- Flexbox 和 CSS Grid。
+- Tailwind CSS utility。
+- Vue 3 runtime。
 
-## Related Documentation
+## 相关文档
 
-- [Auth Store Documentation](/src/stores/README.md#auth-store)
-- [AuthLayout Component](/src/components/layout/README.md#authlayout)
-- [Router Configuration](/src/router/index.ts)
-- [API Documentation](/src/api/README.md#authentication)
-- [Type Definitions](/src/types/index.ts)
+- [Auth Store 文档](/src/stores/README.md#auth-store)
+- [AuthLayout 组件](/src/components/layout/README.md#authlayout)
+- [Router 配置](/src/router/index.ts)
+- [API 文档](/src/api/README.md#authentication)
+- [类型定义](/src/types/index.ts)

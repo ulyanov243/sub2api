@@ -1,16 +1,17 @@
-# Database Migrations
+# 数据库迁移
 
-## Overview
+## 概览
 
-This directory contains SQL migration files for database schema changes. The migration system uses SHA256 checksums to ensure migration immutability and consistency across environments.
+此目录包含用于变更数据库 Schema 的 SQL 迁移文件。迁移系统使用 SHA256 校验和，以保证迁移不可变且在不同环境中保持一致。
 
-## Migration File Naming
+## 迁移文件命名
 
-Format: `NNN_description.sql`
-- `NNN`: Sequential number (e.g., 001, 002, 003)
-- `description`: Brief description in snake_case
+格式：`NNN_description.sql`
 
-Example: `017_add_gemini_tier_id.sql`
+- `NNN`：顺序编号（如 001、002、003）
+- `description`：使用 snake_case 的简短说明
+
+示例：`017_add_gemini_tier_id.sql`
 
 ### `_notx.sql` 命名与执行语义（并发索引专用）
 
@@ -32,119 +33,120 @@ Example: `017_add_gemini_tier_id.sql`
 
 这样可以保证灾备重放、重复执行时不会因对象已存在/不存在而失败。
 
-## Migration File Structure
+## 迁移文件结构
 
-This project uses a custom migration runner (`internal/repository/migrations_runner.go`) that executes the full SQL file content as-is.
+项目使用自定义迁移执行器（`internal/repository/migrations_runner.go`），按原样执行完整 SQL 文件内容。
 
-- Regular migrations (`*.sql`): executed in a transaction.
-- Non-transactional migrations (`*_notx.sql`): split by statement and executed without transaction (for `CONCURRENTLY`).
+- 常规迁移（`*.sql`）：在事务中执行。
+- 非事务迁移（`*_notx.sql`）：按语句拆分，并在事务外执行（用于 `CONCURRENTLY`）。
 
 ```sql
--- Forward-only migration (recommended)
+-- 仅向前迁移（推荐）
 ALTER TABLE usage_logs ADD COLUMN IF NOT EXISTS example_column VARCHAR(100);
 ```
 
-> ⚠️ Do **not** place executable "Down" SQL in the same file. The runner does not parse goose Up/Down sections and will execute all SQL statements in the file.
+> ⚠️ 请勿在同一文件中放置可执行的“Down” SQL。执行器不会解析 goose 的 Up/Down 分段，而会执行文件中的全部 SQL 语句。
 
-## Important Rules
+## 重要规则
 
-### ⚠️ Immutability Principle
+### ⚠️ 不可变原则
 
-**Once a migration is applied to ANY environment (dev, staging, production), it MUST NOT be modified.**
+**迁移一旦应用于任何环境（开发、预发布或生产），就绝不可修改。**
 
-Why?
-- Each migration has a SHA256 checksum stored in the `schema_migrations` table
-- Modifying an applied migration causes checksum mismatch errors
-- Different environments would have inconsistent database states
-- Breaks audit trail and reproducibility
+原因：
 
-### ✅ Correct Workflow
+- 每个迁移都有存储在 `schema_migrations` 表中的 SHA256 校验和。
+- 修改已应用迁移会导致校验和不匹配错误。
+- 各环境会出现不一致的数据库状态。
+- 会破坏审计链路和可复现性。
 
-1. **Create new migration**
+### ✅ 正确工作流
+
+1. **创建新迁移**
    ```bash
-   # Create new file with next sequential number
+   # 使用下一个顺序编号创建新文件
    touch migrations/018_your_change.sql
    ```
 
-2. **Write forward-only migration SQL**
-   - Put only the intended schema change in the file
-   - If rollback is needed, create a new migration file to revert
+2. **编写仅向前的迁移 SQL**
+   - 文件中只放入计划的 Schema 变更。
+   - 如需回滚，创建新的迁移文件来撤销。
 
-3. **Test locally**
+3. **本地测试**
    ```bash
-   # Apply migration
+   # 应用迁移
    make migrate-up
 
-   # Test rollback
+   # 测试回滚
    make migrate-down
    ```
 
-4. **Commit and deploy**
+4. **提交并部署**
    ```bash
    git add migrations/018_your_change.sql
    git commit -m "feat(db): add your change"
    ```
 
-### ❌ What NOT to Do
+### ❌ 禁止事项
 
-- ❌ Modify an already-applied migration file
-- ❌ Delete migration files
-- ❌ Change migration file names
-- ❌ Reorder migration numbers
+- ❌ 修改已应用的迁移文件
+- ❌ 删除迁移文件
+- ❌ 修改迁移文件名
+- ❌ 调整迁移编号顺序
 
-### 🔧 If You Accidentally Modified an Applied Migration
+### 🔧 意外修改已应用的迁移时
 
-**Error message:**
+**错误信息：**
 ```
 migration 017_add_gemini_tier_id.sql checksum mismatch (db=abc123... file=def456...)
 ```
 
-**Solution:**
+**解决方法：**
 ```bash
-# 1. Find the original version
+# 1. 查找原始版本
 git log --oneline -- migrations/017_add_gemini_tier_id.sql
 
-# 2. Revert to the commit when it was first applied
+# 2. 还原到其首次应用时的提交
 git checkout <commit-hash> -- migrations/017_add_gemini_tier_id.sql
 
-# 3. Create a NEW migration for your changes
+# 3. 为变更创建一个新的迁移
 touch migrations/018_your_new_change.sql
 ```
 
-## Migration System Details
+## 迁移系统详情
 
-- **Checksum Algorithm**: SHA256 of trimmed file content
-- **Tracking Table**: `schema_migrations` (filename, checksum, applied_at)
-- **Runner**: `internal/repository/migrations_runner.go`
-- **Auto-run**: Migrations run automatically on service startup
+- **校验和算法**：去除首尾空白后的文件内容的 SHA256。
+- **跟踪表**：`schema_migrations`（filename、checksum、applied_at）。
+- **执行器**：`internal/repository/migrations_runner.go`。
+- **自动执行**：服务启动时自动执行迁移。
 
-## Best Practices
+## 最佳实践
 
-1. **Keep migrations small and focused**
-   - One logical change per migration
-   - Easier to review and rollback
+1. **让迁移保持小且聚焦**
+   - 每个迁移只包含一个逻辑变更。
+   - 更易于评审和回滚。
 
-2. **Write reversible migrations**
-   - Always provide a working Down migration
-   - Test rollback before committing
+2. **编写可逆迁移**
+   - 始终提供可运行的 Down 迁移。
+   - 提交前测试回滚。
 
-3. **Use transactions**
-   - Wrap DDL statements in transactions when possible
-   - Ensures atomicity
+3. **使用事务**
+   - 尽可能将 DDL 语句包在事务中。
+   - 确保原子性。
 
-4. **Add comments**
-   - Explain WHY the change is needed
-   - Document any special considerations
+4. **添加注释**
+   - 说明为何需要此变更。
+   - 记录特殊注意事项。
 
-5. **Test in development first**
-   - Apply migration locally
-   - Verify data integrity
-   - Test rollback
+5. **先在开发环境测试**
+   - 在本地应用迁移。
+   - 验证数据完整性。
+   - 测试回滚。
 
-## Example Migration
+## 迁移示例
 
 ```sql
--- Add tier_id field to Gemini OAuth accounts for quota tracking
+-- 为 Gemini OAuth 账户添加 tier_id 字段以跟踪配额
 UPDATE accounts
 SET credentials = jsonb_set(
     credentials,
@@ -157,28 +159,29 @@ WHERE platform = 'gemini'
   AND credentials->>'tier_id' IS NULL;
 ```
 
-## Troubleshooting
+## 故障排除
 
-### Checksum Mismatch
-See "If You Accidentally Modified an Applied Migration" above.
+### 校验和不匹配
 
-### Migration Failed
+请参阅上文“意外修改已应用的迁移时”。
+
+### 迁移失败
 ```bash
-# Check migration status
+# 查看迁移状态
 psql -d sub2api -c "SELECT * FROM schema_migrations ORDER BY applied_at DESC;"
 
-# Manually rollback if needed (use with caution)
-# Better to fix the migration and create a new one
+# 如有必要可手动回滚（谨慎使用）
+# 更好的做法是修复迁移并新建一个迁移
 ```
 
-### Need to Skip a Migration (Emergency Only)
+### 需要跳过迁移（仅限紧急情况）
 ```sql
--- DANGEROUS: Only use in development or with extreme caution
+-- 危险：仅在开发环境使用，或务必极度谨慎
 INSERT INTO schema_migrations (filename, checksum, applied_at)
 VALUES ('NNN_migration.sql', 'calculated_checksum', NOW());
 ```
 
-## References
+## 参考资料
 
-- Migration runner: `internal/repository/migrations_runner.go`
-- PostgreSQL docs: https://www.postgresql.org/docs/
+- 迁移执行器：`internal/repository/migrations_runner.go`
+- PostgreSQL 文档：https://www.postgresql.org/docs/
